@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聚合物计算器</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            color: #333;
+        }
+        .main-container {
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            padding: 30px;
+            margin: 20px;
+            box-sizing: border-box;
+        }
+        .section {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .left-section {
+            background-color: #fff;
+            border-radius: 10px;
+            flex: 1 1 30%;
+            max-width: 30%;
+            min-height: 400px;
+            margin: 10px;
+            padding: 20px;
+            justify-content: space-between;
+        }
+        .right-section {
+            flex: 1 1 70%;
+            max-width: 70%;
+        }
+        h1, h2 {
+            margin-top: 0;
+            color: #007bff;
+            font-size: 24px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        input[type="text"], select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+            margin: 10px 0;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            padding: 10px 30px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        #result, #purchaseResult {
+            display: none;
+            margin-top: 20px;
+        }
+        #loading {
+            display: none;
+        }
+        #purchaseTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            word-break: break-word;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        td {
+            background-color: #fbfbfb;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .tip {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        @media (max-width: 600px) {
+            .main-container {
+                flex-direction: column;
+                padding: 15px;
+            }
+            .left-section, .right-section {
+                max-width: 100%;
+                flex: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 聚合物需求计算器 -->
+        <div class="left-section">
+            <div>
+                <h1>聚合物需求计算器</h1>
+                <form id="levelForm">
+                    <label for="startLevel">起始等级：</label>
+                    <select id="startLevel" required>
+                        <option value="" disabled selected>选择起始等级</option>
+                        <option value="1">1级</option>
+                        <option value="2">2级</option>
+                        <option value="3">3级</option>
+                        <option value="4">4级</option>
+                        <option value="5">5级</option>
+                        <option value="6">6级</option>
+                        <option value="7">7级</option>
+                        <option value="8">8级</option>
+                        <option value="9">9级</option>
+                    </select><br>
+                    <label for="endLevel">结束等级：</label>
+                    <select id="endLevel" required>
+                        <option value="" disabled selected>选择结束等级</option>
+                        <option value="2">2级</option>
+                        <option value="3">3级</option>
+                        <option value="4">4级</option>
+                        <option value="5">5级</option>
+                        <option value="6">6级</option>
+                        <option value="7">7级</option>
+                        <option value="8">8级</option>
+                        <option value="9">9级</option>
+                        <option value="10">10级</option>
+                    </select>
+                    <input type="submit" value="计算">
+                </form>
+
+                <div id="result">
+                    <h2>计算结果</h2>
+                    <p id="polymerCount"></p>
+                </div>
+            </div>
+            <div class="tip">
+                提示：<br>
+                加速器需使用路由模式，进程模式无效。<br>
+                加速器需使用路由模式，进程模式无效。<br>
+                加速器需使用路由模式，进程模式无效。<br>
+            </div>
+        </div>
+
+        <!-- 聚合物购买方案生成器 -->
+        <div class="section right-section">
+            <h1>聚合物购买方案生成器</h1>
+            <form id="inputForm">
+                <label for="number">请输入需要的聚合物数量：</label>
+                <input type="text" id="number" placeholder="输入数量" required>
+                <input type="submit" value="生成方案">
+            </form>
+
+            <div id="loading">
+                <p>加载中...</p>
+            </div>
+
+            <div id="purchaseResult">
+                <h2>购买方案</h2>
+                <p id="totalCost"></p>
+                <p id="totalDecomposeCount"></p>
+                <table id="purchaseTable">
+                    <thead>
+                        <tr>
+                            <th>物品名称</th>
+                            <th>购买数量</th>
+                            <th>聚合物数量</th>
+                            <th>合计价格</th>
+                            <th>聚合物单价</th>
+                            <th>Steam链接</th>
+                        </tr>
+                    </thead>
+                    <tbody id="purchaseDetails">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="error" class="error"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const levelForm = document.getElementById("levelForm");
+            const result = document.getElementById("result");
+            const polymerCount = document.getElementById("polymerCount");
+            const numberInput = document.getElementById("number");
+
+            levelForm.addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                const startLevel = parseInt(document.getElementById("startLevel").value);
+                const endLevel = parseInt(document.getElementById("endLevel").value);
+
+                if (startLevel >= endLevel) {
+                    polymerCount.innerText = "结束等级必须大于起始等级。";
+                    result.style.display = "block";
+                    return;
+                }
+
+                const polymerCosts = [1800, 2600, 3400, 4200, 5000, 5800, 6600, 7400, 8200];
+                let totalPolymer = polymerCosts.slice(startLevel - 1, endLevel - 1).reduce((sum, cost) => sum + cost, 0);
+
+                polymerCount.innerText = `从${startLevel}级到${endLevel}级总共需要${totalPolymer}个聚合物。已同步至右侧`;
+                result.style.display = "block";
+
+                numberInput.value = totalPolymer;
+            });
+
+            const form = document.getElementById("inputForm");
+            const loading = document.getElementById("loading");
+            const purchaseResult = document.getElementById("purchaseResult");
+            const totalCost = document.getElementById("totalCost");
+            const totalDecomposeCount = document.getElementById("totalDecomposeCount");
+            const purchaseDetails = document.getElementById("purchaseDetails");
+            const error = document.getElementById("error");
+
+            form.addEventListener("submit", async function(event) {
+                event.preventDefault();
+                const number = parseInt(document.getElementById("number").value);
+
+                if (isNaN(number) || number <= 0) {
+                    showError("请输入有效的正整数");
+                    return;
+                }
+
+                loading.style.display = "block";
+                purchaseResult.style.display = "none";
+                error.style.display = "none";
+
+                try {
+                    const response = await fetch("/calculate", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ number })
+                    });
+                    const data = await response.json();
+                    displayResult(data);
+                    scrollToTop();
+                } catch (err) {
+                    showError("发生错误，请稍后重试");
+                    console.error("Error:", err);
+                } finally {
+                    loading.style.display = "none";
+                }
+            });
+
+            function displayResult(data) {
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                purchaseResult.style.display = "block";
+                totalCost.innerText = `总成本：${data.total_amount.toFixed(2)}`;
+                totalDecomposeCount.innerText = `总分解数量：${data.total_decompose_count}`;
+
+                purchaseDetails.innerHTML = data.purchase_details.map(item => `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.buy_count}</td>
+                        <td>${item.decompose_count}</td>
+                        <td>${item.total_price.toFixed(2)}</td>
+                        <td>${(item.total_price / item.decompose_count).toFixed(5)}</td>
+                        <td><a href="https://steamcommunity.com/market/listings/578080/${encodeURIComponent(item.name)}" target="_blank">前往</a></td>
+                    </tr>
+                `).join('');
+            }
+
+            function showError(message) {
+                error.style.display = "block";
+                error.innerText = message;
+            }
+
+            function scrollToTop() {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+        });
+    </script>
+</body>
+</html>
